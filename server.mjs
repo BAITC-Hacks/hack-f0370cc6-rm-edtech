@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { createStore } from './src/store.mjs';
 import { catalog, INDUSTRIES, ValidationError, text } from './src/domain.mjs';
 import { stateResponse } from './src/state.mjs';
+import { readJSON } from './src/http-json.mjs';
+import { createDraft } from './src/tasks.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const types = {
@@ -57,6 +59,14 @@ export async function createApplication({
       try { pathname = decodeURIComponent(url.pathname); }
       catch { throw new ValidationError('Некорректный адрес запроса.'); }
       if (pathname === '/api' || pathname.startsWith('/api/')) {
+        if (pathname === '/api/tasks') {
+          if (req.method !== 'POST') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён POST.', head, {Allow:'POST'});
+          }
+          const task = await createDraft(store, await readJSON(req));
+          return send(res, 201, {task});
+        }
         if (!['/api/state', '/api/catalog'].includes(pathname)) {
           req.resume();
           return fail(res, 404, 'NOT_FOUND', 'API-маршрут не найден или ещё не реализован.', head);
@@ -94,7 +104,11 @@ export async function createApplication({
       }
       return send(res, 200, await readFile(file), types[extname(file)] || 'application/octet-stream', head);
     } catch (error) {
-      if (error instanceof ValidationError) return fail(res, error.status, 'VALIDATION_ERROR', error.message, head);
+      if (res.destroyed) return;
+      if (error instanceof ValidationError) {
+        const code = error.status === 413 ? 'PAYLOAD_TOO_LARGE' : error.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR';
+        return fail(res, error.status, code, error.message, head);
+      }
       onError(error);
       return fail(res, 500, 'INTERNAL_ERROR', 'Не удалось обработать запрос.', head);
     }

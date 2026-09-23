@@ -4,6 +4,8 @@ import { once } from 'node:events';
 import { join } from 'node:path';
 import { createApplication } from '../../server.mjs';
 import { temporaryDirectory } from './helpers.mjs';
+import { request } from 'node:http';
+import { MAX_JSON_BYTES } from '../../src/http-json.mjs';
 
 async function listen(app) {
   app.server.listen(0, '127.0.0.1');
@@ -118,4 +120,99 @@ test('unchanged frontend transport loads live API instead of preview data', asyn
     globalThis.fetch = nativeFetch;
     if (oldLocation === undefined) delete globalThis.location; else globalThis.location = oldLocation;
   }
+});
+
+const draftInput = {role:'business', businessId:'business_demo', raw:'Нужен учёт заявок из разных каналов.', industry:'Услуги'};
+const postDraft = (url, body = draftInput) => fetch(`${url}/api/tasks`, {
+  method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body),
+});
+
+test('POST creates a server-owned unpublished draft and persists it across server restarts', async t => {
+  const {app,url,file} = await setup(t);
+  const response = await postDraft(url,{...draftInput,raw:`  ${draftInput.raw}  `});
+  assert.equal(response.status,201);
+  const {task} = await response.json();
+  assert.match(task.id,/^task_[\da-f-]+$/);
+  assert.equal(task.raw,draftInput.raw);
+  assert.equal(task.company,'Мой бизнес');
+  assert.equal(task.businessId,'business_demo');
+  assert.ok(Object.values(task.fields).every(value=>value===''));
+  assert.deepEqual(task.confirmedFields,[]);
+  assert.equal(task.confirmedAt,null);
+  assert.equal(task.published,false);
+  assert.equal(task.publishedAt,null);
+  assert.equal(task.version,1);
+  assert.equal(task.rating.score,0);
+  assert.equal(task.rating.level.key,'draft');
+  assert.equal(task.createdAt,task.updatedAt);
+  assert.ok(Number.isFinite(Date.parse(task.createdAt)));
+  assert.equal((await (await fetch(`${url}/api/catalog`)).json()).tasks.length,5);
+  await close(app);
+  const reopened = await createApplication({dataFile:file});
+  const nextUrl = await listen(reopened);
+  t.after(()=>close(reopened));
+  const state = await (await fetch(`${nextUrl}/api/state`)).json();
+  assert.deepEqual(state.tasks.find(item=>item.id===task.id),task);
+});
+
+test('POST rejects wrong identity, invalid values and injected server-owned fields without writes', async t => {
+  const {app,url} = await setup(t);
+  for (const patch of [{role:'team'}, {businessId:'other'}, {role:null}]) {
+    assert.equal((await postDraft(url,{...draftInput,...patch})).status,403);
+  }
+  for (const patch of [{raw:''}, {raw:'   '}, {raw:null}, {raw:5}, {raw:'x'.repeat(4001)},
+    {industry:''}, {industry:'unknown'}, {industry:[]}, {rating:{score:100}}, {published:true},
+    {fields:{title:'Injected'}}, {confirmedFields:['data']}, {id:'chosen-by-client'}]) {
+    const response = await postDraft(url,{...draftInput,...patch});
+    assert.equal(response.status,400,JSON.stringify(patch));
+    assert.equal((await response.json()).error.code,'VALIDATION_ERROR');
+  }
+  assert.equal(app.store.read().tasks.length,5);
+});
+
+test('POST accepts the maximum description and serializes concurrent draft writes', async t => {
+  const {app,url} = await setup(t);
+  const responses = await Promise.all(Array.from({length:4},(_,i)=>postDraft(url,{...draftInput,raw:i ? `Task ${i}` : 'я'.repeat(4000)})));
+  const ids = [];
+  for (const response of responses) {
+    assert.equal(response.status,201);
+    ids.push((await response.json()).task.id);
+  }
+  assert.equal(new Set(ids).size,4);
+  assert.equal(app.store.read().tasks.length,9);
+  assert.equal((await (await fetch(`${url}/api/catalog`)).json()).tasks.length,5);
+});
+
+test('POST rejects malformed bodies, content types and oversized requests with structured errors', async t => {
+  const {app,url} = await setup(t);
+  for (const body of ['', '{', 'null', '[]', '123', '"text"']) {
+    const response = await fetch(`${url}/api/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body});
+    assert.equal(response.status,400);
+    assert.equal((await response.json()).error.code,'VALIDATION_ERROR');
+  }
+  const contentType = await fetch(`${url}/api/tasks`,{method:'POST',body:JSON.stringify(draftInput)});
+  assert.equal(contentType.status,400);
+  const large = await fetch(`${url}/api/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:' '.repeat(MAX_JSON_BYTES+1)});
+  assert.equal(large.status,413);
+  assert.equal((await large.json()).error.code,'PAYLOAD_TOO_LARGE');
+  const get = await fetch(`${url}/api/tasks`);
+  assert.equal(get.status,405);
+  assert.equal(get.headers.get('allow'),'POST');
+  assert.equal(app.store.read().tasks.length,5);
+});
+
+test('chunked JSON enforces size bound even without Content-Length', async t => {
+  const {app,url} = await setup(t);
+  const result = await new Promise((resolve,reject) => {
+    const req = request(`${url}/api/tasks`,{method:'POST',headers:{'Content-Type':'application/json','Transfer-Encoding':'chunked'}},res=>{
+      let body=''; res.on('data',chunk=>{body+=chunk;});
+      res.on('end',()=>resolve({status:res.statusCode,body:JSON.parse(body)}));
+    });
+    req.on('error',reject);
+    req.write(' '.repeat(MAX_JSON_BYTES));
+    req.end(' ');
+  });
+  assert.equal(result.status,413);
+  assert.equal(result.body.error.code,'PAYLOAD_TOO_LARGE');
+  assert.equal(app.store.read().tasks.length,5);
 });
