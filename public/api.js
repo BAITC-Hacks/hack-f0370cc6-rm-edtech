@@ -42,3 +42,26 @@ export async function loadCatalog(filters = {}, signal) {
   // Fail closed if an endpoint accidentally returns a private draft.
   return checkTasks(data.tasks).filter(t => t.published === true);
 }
+
+export async function createTask({ raw, industry }) {
+  if (isPreview) throw new Error('В режиме просмотра черновики не сохраняются. Откройте приложение без preview.');
+  let response;
+  try {
+    response = await fetch('/api/tasks', {
+      method: 'POST', signal: AbortSignal.timeout(10000),
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: 'business', businessId: 'business_demo', raw, industry }),
+    });
+  } catch {
+    throw Object.assign(new Error('Ответ о сохранении не получен. Проверьте черновики перед повторной отправкой.'), { uncertain: true });
+  }
+  let body;
+  try { body = await response.json(); }
+  catch { throw Object.assign(new Error('Не удалось прочитать подтверждение сохранения. Проверьте черновики.'), { uncertain: true }); }
+  if (!response.ok) throw Object.assign(new Error(body?.error?.message || 'Не удалось сохранить черновик.'), { uncertain: response.status >= 500 });
+  try {
+    const [task] = checkTasks([body.task]);
+    if (response.status !== 201 || task.published !== false || task.businessId !== 'business_demo') throw new Error();
+    return task;
+  } catch { throw Object.assign(new Error('Ответ не содержит корректный черновик. Проверьте сохранённые задачи.'), { uncertain: true }); }
+}
