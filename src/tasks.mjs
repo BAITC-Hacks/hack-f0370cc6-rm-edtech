@@ -1,4 +1,4 @@
-import { cleanFields, enrich, id, INDUSTRIES, now, text, ValidationError } from './domain.mjs';
+import { cleanFields, enrich, id, INDUSTRIES, now, requireBusiness, requireFound, text, ValidationError } from './domain.mjs';
 
 export async function createDraft(store, body) {
   // A demo identity, not authentication; only the known business is supported by this MVP.
@@ -19,6 +19,30 @@ export async function createDraft(store, body) {
       published: false, publishedAt: null, createdAt, updatedAt: createdAt, version: 1,
     };
     state.tasks.push(task);
+    return enrich(task);
+  });
+}
+
+export async function confirmTask(store, taskId, body) {
+  const keys = new Set(['role', 'businessId', 'version', 'industry', 'fields', 'confirmed']);
+  if (Object.keys(body).some(key => !keys.has(key))) throw new ValidationError('Неизвестное поле запроса.');
+  if (body.confirmed !== true) throw new ValidationError('Подтвердите сведения перед сохранением.');
+  if (!Number.isSafeInteger(body.version) || body.version < 1) throw new ValidationError('Укажите целую положительную версию задачи.');
+  if (!Object.hasOwn(body, 'fields')) throw new ValidationError('Передайте полный снимок полей карточки.');
+  const fields = cleanFields(body.fields);
+  const industry = text(body.industry, 'Отрасль', {required:true, max:100});
+  if (!INDUSTRIES.includes(industry)) throw new ValidationError('Неизвестная отрасль.');
+  return store.mutate(state => {
+    const task = requireFound(state.tasks, taskId, 'Задача');
+    requireBusiness(task, body);
+    // Check the current version inside the write queue: a previous request may just have committed.
+    if (body.version !== task.version) throw new ValidationError('Задача уже изменена. Перечитайте её перед сохранением; ваши правки можно сравнить с новой версией.', 409);
+    if (task.published && !fields.title) throw new ValidationError('У опубликованной задачи должно оставаться название.');
+    const confirmedAt = now();
+    Object.assign(task, {
+      industry, fields, confirmedFields: Object.keys(fields).filter(key => fields[key] !== ''),
+      confirmedAt, updatedAt: confirmedAt, version: task.version + 1,
+    });
     return enrich(task);
   });
 }

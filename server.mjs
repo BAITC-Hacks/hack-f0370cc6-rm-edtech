@@ -6,7 +6,7 @@ import { createStore } from './src/store.mjs';
 import { catalog, INDUSTRIES, ValidationError, text } from './src/domain.mjs';
 import { stateResponse } from './src/state.mjs';
 import { readJSON } from './src/http-json.mjs';
-import { createDraft } from './src/tasks.mjs';
+import { confirmTask, createDraft } from './src/tasks.mjs';
 import { analyzeTask } from './src/ai/analyze.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
@@ -76,6 +76,15 @@ export async function createApplication({
           const task = await createDraft(store, await readJSON(req));
           return send(res, 201, {task});
         }
+        const taskMatch = /^\/api\/tasks\/([^/]+)$/.exec(pathname);
+        if (taskMatch) {
+          if (req.method !== 'PUT') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён PUT.', head, {Allow:'PUT'});
+          }
+          const task = await confirmTask(store, taskMatch[1], await readJSON(req));
+          return send(res, 200, {task});
+        }
         if (!['/api/state', '/api/catalog'].includes(pathname)) {
           req.resume();
           return fail(res, 404, 'NOT_FOUND', 'API-маршрут не найден или ещё не реализован.', head);
@@ -115,7 +124,7 @@ export async function createApplication({
     } catch (error) {
       if (res.destroyed) return;
       if (error instanceof ValidationError) {
-        const code = error.status === 413 ? 'PAYLOAD_TOO_LARGE' : error.status === 403 ? 'FORBIDDEN' : 'VALIDATION_ERROR';
+        const code = ({403:'FORBIDDEN', 404:'NOT_FOUND', 409:'CONFLICT', 413:'PAYLOAD_TOO_LARGE'})[error.status] || 'VALIDATION_ERROR';
         return fail(res, error.status, code, error.message, head);
       }
       onError(error);
