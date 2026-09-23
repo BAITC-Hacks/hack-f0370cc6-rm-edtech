@@ -78,6 +78,16 @@ test('static serving preserves frontend assets and correct module MIME without e
   const head = await fetch(`${url}/api.js`,{method:'HEAD'});
   assert.equal(head.status,200);
   assert.equal(await head.text(),'');
+  const fontPath = '/tasker/fonts/Commissioner-Variable.woff2';
+  const fontBytes = await readFile(new URL('../../public' + fontPath, import.meta.url));
+  const font = await fetch(url + fontPath);
+  assert.equal(font.status,200);
+  assert.equal(font.headers.get('content-type'),'font/woff2');
+  assert.deepEqual(Buffer.from(await font.arrayBuffer()),fontBytes);
+  const fontHead = await fetch(url + fontPath,{method:'HEAD'});
+  assert.equal(fontHead.headers.get('content-type'),'font/woff2');
+  assert.equal(Number(fontHead.headers.get('content-length')),fontBytes.length);
+  assert.equal((await fontHead.arrayBuffer()).byteLength,0);
   for (const path of ['/server.mjs','/src/store.mjs','/data/state.json']) assert.equal((await fetch(url+path)).status,404);
   for (const path of ['/.env','/%2e%2e%2fserver.mjs','/..%5cserver.mjs','/api.js:secret']) assert.equal((await fetch(url+path)).status,403);
   assert.equal((await fetch(`${url}/bad%ZZ`)).status,400);
