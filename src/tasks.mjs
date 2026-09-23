@@ -46,3 +46,24 @@ export async function confirmTask(store, taskId, body) {
     return enrich(task);
   });
 }
+
+export async function publishTask(store, taskId, body) {
+  const keys = new Set(['role', 'businessId', 'version']);
+  if (Object.keys(body).some(key => !keys.has(key))) throw new ValidationError('Неизвестное поле запроса.');
+  if (!Number.isSafeInteger(body.version) || body.version < 1) throw new ValidationError('Укажите целую положительную версию задачи.');
+  return store.mutate(state => {
+    const task = requireFound(state.tasks, taskId, 'Задача');
+    requireBusiness(task, body);
+    if (body.version !== task.version) throw new ValidationError('Задача уже изменена. Перечитайте её перед публикацией.', 409);
+    if (!task.fields.title?.trim()) throw new ValidationError('Укажите название задачи перед публикацией.');
+    const confirmed = new Set(task.confirmedFields ?? []);
+    const unconfirmed = Object.entries(task.fields).some(([key, value]) => value.trim() && !confirmed.has(key));
+    if (!task.confirmedAt || unconfirmed) throw new ValidationError('Подтвердите текущие сведения карточки перед публикацией.');
+    // A retry preserves the first publication date and therefore its position among equal scores.
+    if (!task.published) {
+      const publishedAt = now();
+      Object.assign(task, { published: true, publishedAt, updatedAt: publishedAt, version: task.version + 1 });
+    }
+    return enrich(task);
+  });
+}

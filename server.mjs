@@ -6,7 +6,7 @@ import { createStore } from './src/store.mjs';
 import { catalog, INDUSTRIES, ValidationError, text } from './src/domain.mjs';
 import { stateResponse } from './src/state.mjs';
 import { readJSON } from './src/http-json.mjs';
-import { confirmTask, createDraft } from './src/tasks.mjs';
+import { confirmTask, createDraft, publishTask } from './src/tasks.mjs';
 import { analyzeTask } from './src/ai/analyze.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
@@ -75,6 +75,15 @@ export async function createApplication({
           }
           const task = await createDraft(store, await readJSON(req));
           return send(res, 201, {task});
+        }
+        const publishMatch = /^\/api\/tasks\/([^/]+)\/publish$/.exec(pathname);
+        if (publishMatch) {
+          if (req.method !== 'POST') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён POST.', head, {Allow:'POST'});
+          }
+          const task = await publishTask(store, publishMatch[1], await readJSON(req));
+          return send(res, 200, {task});
         }
         const taskMatch = /^\/api\/tasks\/([^/]+)$/.exec(pathname);
         if (taskMatch) {
