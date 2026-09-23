@@ -1,0 +1,1349 @@
+{
+  "tasks": [
+    {
+      "id": "task_coffee",
+      "industry": "Ритейл",
+      "company": "Tañ Coffee",
+      "initials": "T",
+      "color": "peach",
+      "tags": [
+        "Python",
+        "Аналитика",
+        "Прогнозирование"
+      ],
+      "raw": "У нас небольшая сеть кофеен. Хотим меньше списывать выпечку и понимать, сколько заказывать на завтра.",
+      "fields": {
+        "title": "Предсказать спрос на выпечку в кофейнях",
+        "context": "У сети Tañ Coffee три кофейни. Управляющие заказывают выпечку на глаз, часть продукции списывается в конце дня.",
+        "need": "Прогнозировать ежедневный спрос по каждой точке и сократить списания.",
+        "users": "Управляющие трёх кофеен и закупщик.",
+        "data": "Синтетический CSV продаж по дням за 6 месяцев: точка, товар, количество, цена и списание. Данные можно предоставить команде.",
+        "constraints": "Прототип за 2 недели. Python, без интеграции с кассовой системой. Только обезличенные данные.",
+        "result": "Веб-дашборд с прогнозом заказа на завтра по каждой кофейне и выгрузкой CSV.",
+        "success": "На отложенных последних 30 днях MAE прогноза минимум на 15% ниже базового прогноза по среднему за неделю.",
+        "contact": "Демо-контакт: owner@tan.example",
+        "format": "Две онлайн-консультации по 30 минут в неделю.",
+        "feedback": "Управляющий проверяет прототип и отвечает в течение 2 рабочих дней."
+      },
+      "businessId": "business_demo",
+      "published": true,
+      "publishedAt": "2026-09-23T04:37:11.102Z",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "updatedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedFields": [
+        "title",
+        "context",
+        "need",
+        "users",
+        "data",
+        "constraints",
+        "result",
+        "success",
+        "contact",
+        "format",
+        "feedback"
+      ],
+      "version": 1,
+      "rating": {
+        "score": 100,
+        "level": {
+          "key": "priority",
+          "label": "Приоритетная",
+          "description": "Полностью готова к работе"
+        },
+        "breakdown": [
+          {
+            "label": "Контекст и потребность",
+            "max": 20,
+            "parts": [
+              [
+                "context",
+                10
+              ],
+              [
+                "need",
+                10
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Данные и материалы",
+            "max": 20,
+            "parts": [
+              [
+                "data",
+                20
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Ожидаемый результат",
+            "max": 15,
+            "parts": [
+              [
+                "result",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Критерии успеха",
+            "max": 15,
+            "parts": [
+              [
+                "success",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Ограничения",
+            "max": 10,
+            "parts": [
+              [
+                "constraints",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Пользователи",
+            "max": 10,
+            "parts": [
+              [
+                "users",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Связь с бизнесом",
+            "max": 10,
+            "parts": [
+              [
+                "contact",
+                3
+              ],
+              [
+                "format",
+                3
+              ],
+              [
+                "feedback",
+                4
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          }
+        ],
+        "missing": []
+      }
+    },
+    {
+      "id": "task_edu",
+      "industry": "Образование",
+      "company": "Qadam School",
+      "initials": "Q",
+      "color": "lavender",
+      "tags": [
+        "JavaScript",
+        "UX/UI",
+        "Образование"
+      ],
+      "raw": "Ученики забывают домашние задания. Нужен понятный личный кабинет с практикой и прогрессом.",
+      "fields": {
+        "title": "Превратить домашнюю практику в привычку",
+        "context": "В языковой школе ученики получают практические задания в разных мессенджерах.",
+        "need": "Собрать практику в одном месте и помочь ученикам видеть свой прогресс.",
+        "users": "Ученики языковых курсов и преподаватели.",
+        "data": "20 примеров учебных заданий и обезличенная таблица выполнения за месяц.",
+        "constraints": "Пилот на одной учебной группе, 3 недели. Без персональных данных учащихся.",
+        "result": "Интерактивный веб-прототип: список практики, отправка ответа, прогресс.",
+        "success": "Преподаватель создаёт задание, ученик отправляет ответ и видит обновлённый прогресс.",
+        "contact": "",
+        "format": "",
+        "feedback": ""
+      },
+      "businessId": "business_demo",
+      "published": true,
+      "publishedAt": "2026-09-23T05:37:11.102Z",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "updatedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedFields": [
+        "title",
+        "context",
+        "need",
+        "users",
+        "data",
+        "constraints",
+        "result",
+        "success"
+      ],
+      "version": 1,
+      "rating": {
+        "score": 90,
+        "level": {
+          "key": "priority",
+          "label": "Приоритетная",
+          "description": "Полностью готова к работе"
+        },
+        "breakdown": [
+          {
+            "label": "Контекст и потребность",
+            "max": 20,
+            "parts": [
+              [
+                "context",
+                10
+              ],
+              [
+                "need",
+                10
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Данные и материалы",
+            "max": 20,
+            "parts": [
+              [
+                "data",
+                20
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Ожидаемый результат",
+            "max": 15,
+            "parts": [
+              [
+                "result",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Критерии успеха",
+            "max": 15,
+            "parts": [
+              [
+                "success",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Ограничения",
+            "max": 10,
+            "parts": [
+              [
+                "constraints",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Пользователи",
+            "max": 10,
+            "parts": [
+              [
+                "users",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Связь с бизнесом",
+            "max": 10,
+            "parts": [
+              [
+                "contact",
+                3
+              ],
+              [
+                "format",
+                3
+              ],
+              [
+                "feedback",
+                4
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "contact",
+                "weight": 3,
+                "label": "Контакт"
+              },
+              {
+                "key": "format",
+                "weight": 3,
+                "label": "Формат взаимодействия"
+              },
+              {
+                "key": "feedback",
+                "weight": 4,
+                "label": "Порядок обратной связи"
+              }
+            ]
+          }
+        ],
+        "missing": [
+          {
+            "key": "feedback",
+            "weight": 4,
+            "label": "Порядок обратной связи"
+          },
+          {
+            "key": "contact",
+            "weight": 3,
+            "label": "Контакт"
+          },
+          {
+            "key": "format",
+            "weight": 3,
+            "label": "Формат взаимодействия"
+          }
+        ]
+      }
+    },
+    {
+      "id": "task_tour",
+      "industry": "Туризм",
+      "company": "Steppe Travel",
+      "initials": "S",
+      "color": "mint",
+      "tags": [
+        "Карты",
+        "JavaScript",
+        "UX/UI"
+      ],
+      "raw": "Нужен конструктор прогулок по Алматы. У нас есть список мест и описания.",
+      "fields": {
+        "title": "Собрать городской маршрут за пару минут",
+        "context": "Туроператор вручную составляет маршруты для небольших групп по Алматы.",
+        "need": "Ускорить подбор прогулки по интересам гостей.",
+        "users": "Туристы и менеджеры туроператора.",
+        "data": "Тестовый список 30 локаций с координатами, описанием и временем посещения.",
+        "constraints": "",
+        "result": "Прототип карты с выбором интересов и маршрутом на полдня.",
+        "success": "",
+        "contact": "",
+        "format": "",
+        "feedback": ""
+      },
+      "businessId": "business_demo",
+      "published": true,
+      "publishedAt": "2026-09-23T06:37:11.102Z",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "updatedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedFields": [
+        "title",
+        "context",
+        "need",
+        "users",
+        "data",
+        "result"
+      ],
+      "version": 1,
+      "rating": {
+        "score": 65,
+        "level": {
+          "key": "working",
+          "label": "Рабочая",
+          "description": "Основные условия понятны"
+        },
+        "breakdown": [
+          {
+            "label": "Контекст и потребность",
+            "max": 20,
+            "parts": [
+              [
+                "context",
+                10
+              ],
+              [
+                "need",
+                10
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Данные и материалы",
+            "max": 20,
+            "parts": [
+              [
+                "data",
+                20
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Ожидаемый результат",
+            "max": 15,
+            "parts": [
+              [
+                "result",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Критерии успеха",
+            "max": 15,
+            "parts": [
+              [
+                "success",
+                15
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "success",
+                "weight": 15,
+                "label": "Критерии успеха"
+              }
+            ]
+          },
+          {
+            "label": "Ограничения",
+            "max": 10,
+            "parts": [
+              [
+                "constraints",
+                10
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "constraints",
+                "weight": 10,
+                "label": "Ограничения"
+              }
+            ]
+          },
+          {
+            "label": "Пользователи",
+            "max": 10,
+            "parts": [
+              [
+                "users",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Связь с бизнесом",
+            "max": 10,
+            "parts": [
+              [
+                "contact",
+                3
+              ],
+              [
+                "format",
+                3
+              ],
+              [
+                "feedback",
+                4
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "contact",
+                "weight": 3,
+                "label": "Контакт"
+              },
+              {
+                "key": "format",
+                "weight": 3,
+                "label": "Формат взаимодействия"
+              },
+              {
+                "key": "feedback",
+                "weight": 4,
+                "label": "Порядок обратной связи"
+              }
+            ]
+          }
+        ],
+        "missing": [
+          {
+            "key": "success",
+            "weight": 15,
+            "label": "Критерии успеха"
+          },
+          {
+            "key": "constraints",
+            "weight": 10,
+            "label": "Ограничения"
+          },
+          {
+            "key": "feedback",
+            "weight": 4,
+            "label": "Порядок обратной связи"
+          },
+          {
+            "key": "contact",
+            "weight": 3,
+            "label": "Контакт"
+          },
+          {
+            "key": "format",
+            "weight": 3,
+            "label": "Формат взаимодействия"
+          }
+        ]
+      }
+    },
+    {
+      "id": "task_logistics",
+      "industry": "Логистика",
+      "company": "Jol Logistics",
+      "initials": "J",
+      "color": "sky",
+      "tags": [
+        "Python",
+        "Логистика",
+        "Оптимизация"
+      ],
+      "raw": "Хотим понимать, почему курьеры опаздывают, и лучше распределять заказы.",
+      "fields": {
+        "title": "Помочь диспетчеру планировать доставку",
+        "context": "Диспетчер распределяет доставки вручную в таблице. Иногда курьеры приезжают позже назначенного окна.",
+        "need": "Находить причины опозданий и показывать загрузку курьеров.",
+        "users": "Диспетчеры службы доставки.",
+        "data": "",
+        "constraints": "",
+        "result": "Дашборд загрузки и отчёт о причинах задержек.",
+        "success": "",
+        "contact": "",
+        "format": "",
+        "feedback": ""
+      },
+      "businessId": "business_demo",
+      "published": true,
+      "publishedAt": "2026-09-23T07:37:11.102Z",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "updatedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedFields": [
+        "title",
+        "context",
+        "need",
+        "users",
+        "result"
+      ],
+      "version": 1,
+      "rating": {
+        "score": 45,
+        "level": {
+          "key": "working",
+          "label": "Рабочая",
+          "description": "Основные условия понятны"
+        },
+        "breakdown": [
+          {
+            "label": "Контекст и потребность",
+            "max": 20,
+            "parts": [
+              [
+                "context",
+                10
+              ],
+              [
+                "need",
+                10
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Данные и материалы",
+            "max": 20,
+            "parts": [
+              [
+                "data",
+                20
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "data",
+                "weight": 20,
+                "label": "Данные и материалы"
+              }
+            ]
+          },
+          {
+            "label": "Ожидаемый результат",
+            "max": 15,
+            "parts": [
+              [
+                "result",
+                15
+              ]
+            ],
+            "earned": 15,
+            "missing": []
+          },
+          {
+            "label": "Критерии успеха",
+            "max": 15,
+            "parts": [
+              [
+                "success",
+                15
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "success",
+                "weight": 15,
+                "label": "Критерии успеха"
+              }
+            ]
+          },
+          {
+            "label": "Ограничения",
+            "max": 10,
+            "parts": [
+              [
+                "constraints",
+                10
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "constraints",
+                "weight": 10,
+                "label": "Ограничения"
+              }
+            ]
+          },
+          {
+            "label": "Пользователи",
+            "max": 10,
+            "parts": [
+              [
+                "users",
+                10
+              ]
+            ],
+            "earned": 10,
+            "missing": []
+          },
+          {
+            "label": "Связь с бизнесом",
+            "max": 10,
+            "parts": [
+              [
+                "contact",
+                3
+              ],
+              [
+                "format",
+                3
+              ],
+              [
+                "feedback",
+                4
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "contact",
+                "weight": 3,
+                "label": "Контакт"
+              },
+              {
+                "key": "format",
+                "weight": 3,
+                "label": "Формат взаимодействия"
+              },
+              {
+                "key": "feedback",
+                "weight": 4,
+                "label": "Порядок обратной связи"
+              }
+            ]
+          }
+        ],
+        "missing": [
+          {
+            "key": "data",
+            "weight": 20,
+            "label": "Данные и материалы"
+          },
+          {
+            "key": "success",
+            "weight": 15,
+            "label": "Критерии успеха"
+          },
+          {
+            "key": "constraints",
+            "weight": 10,
+            "label": "Ограничения"
+          },
+          {
+            "key": "feedback",
+            "weight": 4,
+            "label": "Порядок обратной связи"
+          },
+          {
+            "key": "contact",
+            "weight": 3,
+            "label": "Контакт"
+          },
+          {
+            "key": "format",
+            "weight": 3,
+            "label": "Формат взаимодействия"
+          }
+        ]
+      }
+    },
+    {
+      "id": "task_service",
+      "industry": "Услуги",
+      "company": "Örken Studio",
+      "initials": "Ö",
+      "color": "rose",
+      "tags": [
+        "Автоматизация",
+        "Дизайн"
+      ],
+      "raw": "В студии теряются заявки клиентов. Хотим что-нибудь удобное вместо чатов.",
+      "fields": {
+        "title": "Собрать заявки студии в одном месте",
+        "context": "Небольшая дизайн-студия получает запросы из нескольких каналов.",
+        "need": "Перестать терять клиентские заявки.",
+        "users": "",
+        "data": "",
+        "constraints": "",
+        "result": "",
+        "success": "",
+        "contact": "",
+        "format": "",
+        "feedback": ""
+      },
+      "businessId": "business_demo",
+      "published": true,
+      "publishedAt": "2026-09-23T08:37:11.102Z",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "updatedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedAt": "2026-09-23T09:37:11.093Z",
+      "confirmedFields": [
+        "title",
+        "context",
+        "need"
+      ],
+      "version": 1,
+      "rating": {
+        "score": 20,
+        "level": {
+          "key": "draft",
+          "label": "Требует уточнения",
+          "description": "Можно откликнуться и обсудить детали"
+        },
+        "breakdown": [
+          {
+            "label": "Контекст и потребность",
+            "max": 20,
+            "parts": [
+              [
+                "context",
+                10
+              ],
+              [
+                "need",
+                10
+              ]
+            ],
+            "earned": 20,
+            "missing": []
+          },
+          {
+            "label": "Данные и материалы",
+            "max": 20,
+            "parts": [
+              [
+                "data",
+                20
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "data",
+                "weight": 20,
+                "label": "Данные и материалы"
+              }
+            ]
+          },
+          {
+            "label": "Ожидаемый результат",
+            "max": 15,
+            "parts": [
+              [
+                "result",
+                15
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "result",
+                "weight": 15,
+                "label": "Ожидаемый результат"
+              }
+            ]
+          },
+          {
+            "label": "Критерии успеха",
+            "max": 15,
+            "parts": [
+              [
+                "success",
+                15
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "success",
+                "weight": 15,
+                "label": "Критерии успеха"
+              }
+            ]
+          },
+          {
+            "label": "Ограничения",
+            "max": 10,
+            "parts": [
+              [
+                "constraints",
+                10
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "constraints",
+                "weight": 10,
+                "label": "Ограничения"
+              }
+            ]
+          },
+          {
+            "label": "Пользователи",
+            "max": 10,
+            "parts": [
+              [
+                "users",
+                10
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "users",
+                "weight": 10,
+                "label": "Пользователи"
+              }
+            ]
+          },
+          {
+            "label": "Связь с бизнесом",
+            "max": 10,
+            "parts": [
+              [
+                "contact",
+                3
+              ],
+              [
+                "format",
+                3
+              ],
+              [
+                "feedback",
+                4
+              ]
+            ],
+            "earned": 0,
+            "missing": [
+              {
+                "key": "contact",
+                "weight": 3,
+                "label": "Контакт"
+              },
+              {
+                "key": "format",
+                "weight": 3,
+                "label": "Формат взаимодействия"
+              },
+              {
+                "key": "feedback",
+                "weight": 4,
+                "label": "Порядок обратной связи"
+              }
+            ]
+          }
+        ],
+        "missing": [
+          {
+            "key": "data",
+            "weight": 20,
+            "label": "Данные и материалы"
+          },
+          {
+            "key": "result",
+            "weight": 15,
+            "label": "Ожидаемый результат"
+          },
+          {
+            "key": "success",
+            "weight": 15,
+            "label": "Критерии успеха"
+          },
+          {
+            "key": "constraints",
+            "weight": 10,
+            "label": "Ограничения"
+          },
+          {
+            "key": "users",
+            "weight": 10,
+            "label": "Пользователи"
+          },
+          {
+            "key": "feedback",
+            "weight": 4,
+            "label": "Порядок обратной связи"
+          },
+          {
+            "key": "contact",
+            "weight": 3,
+            "label": "Контакт"
+          },
+          {
+            "key": "format",
+            "weight": 3,
+            "label": "Формат взаимодействия"
+          }
+        ]
+      }
+    }
+  ],
+  "teams": [
+    {
+      "id": "team_orbit",
+      "name": "Orbit",
+      "initials": "O",
+      "color": "lavender",
+      "description": "Делаем понятные продукты на стыке данных и дизайна.",
+      "members": 4,
+      "interests": [
+        "Ритейл",
+        "Образование"
+      ],
+      "skills": [
+        "Аналитика",
+        "UX/UI"
+      ],
+      "technologies": [
+        "Python",
+        "JavaScript"
+      ],
+      "points": 0
+    },
+    {
+      "id": "team_nomad",
+      "name": "Nomad Labs",
+      "initials": "N",
+      "color": "mint",
+      "description": "От исследования задачи до работающего веб-приложения.",
+      "members": 3,
+      "interests": [
+        "Туризм",
+        "Услуги"
+      ],
+      "skills": [
+        "Карты",
+        "Дизайн"
+      ],
+      "technologies": [
+        "JavaScript",
+        "React"
+      ],
+      "points": 0
+    },
+    {
+      "id": "team_tensor",
+      "name": "Tensor",
+      "initials": "T",
+      "color": "sky",
+      "description": "Прогнозируем спрос и превращаем таблицы в решения.",
+      "members": 5,
+      "interests": [
+        "Ритейл",
+        "Логистика"
+      ],
+      "skills": [
+        "Прогнозирование",
+        "Аналитика"
+      ],
+      "technologies": [
+        "Python",
+        "SQL"
+      ],
+      "points": 0
+    },
+    {
+      "id": "team_qadam",
+      "name": "Qadam Dev",
+      "initials": "Q",
+      "color": "peach",
+      "description": "Создаём цифровые инструменты для обучения.",
+      "members": 4,
+      "interests": [
+        "Образование"
+      ],
+      "skills": [
+        "UX/UI",
+        "Автоматизация"
+      ],
+      "technologies": [
+        "JavaScript",
+        "TypeScript"
+      ],
+      "points": 0
+    },
+    {
+      "id": "team_jol",
+      "name": "Jol",
+      "initials": "J",
+      "color": "rose",
+      "description": "Исследуем маршруты и оптимизируем процессы.",
+      "members": 3,
+      "interests": [
+        "Логистика",
+        "Туризм"
+      ],
+      "skills": [
+        "Оптимизация",
+        "Карты"
+      ],
+      "technologies": [
+        "Python",
+        "JavaScript"
+      ],
+      "points": 0
+    }
+  ],
+  "proposals": [
+    {
+      "id": "proposal_1",
+      "taskId": "task_coffee",
+      "teamId": "team_orbit",
+      "idea": "Дашборд спроса с объяснимым прогнозом",
+      "plan": "Изучим данные и построим базовый прогноз. Сравним модели на отложенной выборке. Соберём дашборд и проверим его с управляющим.",
+      "duration": "14 дней",
+      "link": "https://example.com/orbit-demo",
+      "status": "pending",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "milestones": []
+    },
+    {
+      "id": "proposal_2",
+      "taskId": "task_coffee",
+      "teamId": "team_tensor",
+      "idea": "Прогноз спроса с учётом дня недели",
+      "plan": "Проверим качество данных. Построим baseline. Сравним MAE моделей. Добавим выгрузку рекомендаций для закупщика.",
+      "duration": "12 дней",
+      "link": "https://example.com/tensor-demo",
+      "status": "pending",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "milestones": []
+    },
+    {
+      "id": "proposal_3",
+      "taskId": "task_edu",
+      "teamId": "team_qadam",
+      "idea": "Кабинет практики с понятным прогрессом",
+      "plan": "Проведём интервью с преподавателем. Сделаем кликабельный прототип. Реализуем цикл от задания до ответа.",
+      "duration": "21 день",
+      "link": "https://example.com/qadam-demo",
+      "status": "pending",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "milestones": []
+    },
+    {
+      "id": "proposal_4",
+      "taskId": "task_tour",
+      "teamId": "team_nomad",
+      "idea": "Прогулки по интересам на интерактивной карте",
+      "plan": "Подготовим каталог локаций. Добавим фильтры. Соберём маршрут и протестируем на трёх сценариях.",
+      "duration": "10 дней",
+      "link": "https://example.com/nomad-demo",
+      "status": "pending",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "milestones": []
+    },
+    {
+      "id": "proposal_5",
+      "taskId": "task_service",
+      "teamId": "team_jol",
+      "idea": "Единая доска входящих заявок",
+      "plan": "Уточним каналы обращений. Согласуем статусы. Создадим простую доску и проверим на тестовых заявках.",
+      "duration": "10 дней",
+      "link": "https://example.com/jol-demo",
+      "status": "pending",
+      "createdAt": "2026-09-23T09:37:11.093Z",
+      "milestones": []
+    }
+  ],
+  "drafts": [
+    {
+      "text": "У нас небольшая сеть кофеен. Хотим меньше списывать выпечку и понимать, сколько заказывать на завтра.",
+      "industry": "Ритейл"
+    },
+    {
+      "text": "Ученики забывают домашние задания. Нужен понятный личный кабинет с практикой и прогрессом.",
+      "industry": "Образование"
+    },
+    {
+      "text": "Нужен конструктор прогулок по Алматы. У нас есть список мест и описания.",
+      "industry": "Туризм"
+    },
+    {
+      "text": "Хотим понимать, почему курьеры опаздывают, и лучше распределять заказы.",
+      "industry": "Логистика"
+    },
+    {
+      "text": "В студии теряются заявки клиентов. Хотим что-нибудь удобное вместо чатов.",
+      "industry": "Услуги"
+    }
+  ],
+  "meta": {
+    "fields": [
+      {
+        "key": "title",
+        "label": "Название задачи",
+        "max": 160,
+        "placeholder": "Например, прогнозировать остатки в небольшой кофейне"
+      },
+      {
+        "key": "context",
+        "label": "Контекст",
+        "max": 4000,
+        "placeholder": "Как устроен процесс сейчас? Что происходит?"
+      },
+      {
+        "key": "need",
+        "label": "Потребность",
+        "max": 4000,
+        "placeholder": "Какую проблему нужно решить и почему это важно?"
+      },
+      {
+        "key": "users",
+        "label": "Пользователи",
+        "max": 2000,
+        "placeholder": "Кто будет пользоваться решением?"
+      },
+      {
+        "key": "data",
+        "label": "Данные и материалы",
+        "max": 4000,
+        "placeholder": "Какие данные, примеры или источники доступны команде?"
+      },
+      {
+        "key": "constraints",
+        "label": "Ограничения",
+        "max": 2000,
+        "placeholder": "Сроки, технологии, доступы и другие границы проекта"
+      },
+      {
+        "key": "result",
+        "label": "Ожидаемый результат",
+        "max": 3000,
+        "placeholder": "Что именно должна передать команда?"
+      },
+      {
+        "key": "success",
+        "label": "Критерии успеха",
+        "max": 2000,
+        "placeholder": "Как измерить результат и принять работу?"
+      },
+      {
+        "key": "contact",
+        "label": "Контакт",
+        "max": 500,
+        "placeholder": "Контакт ответственного или способ связи"
+      },
+      {
+        "key": "format",
+        "label": "Формат взаимодействия",
+        "max": 1000,
+        "placeholder": "Как и когда бизнес готов консультировать команду?"
+      },
+      {
+        "key": "feedback",
+        "label": "Порядок обратной связи",
+        "max": 1000,
+        "placeholder": "Кто проверяет результат и как быстро отвечает?"
+      }
+    ],
+    "rubric": [
+      {
+        "label": "Контекст и потребность",
+        "max": 20,
+        "parts": [
+          [
+            "context",
+            10
+          ],
+          [
+            "need",
+            10
+          ]
+        ]
+      },
+      {
+        "label": "Данные и материалы",
+        "max": 20,
+        "parts": [
+          [
+            "data",
+            20
+          ]
+        ]
+      },
+      {
+        "label": "Ожидаемый результат",
+        "max": 15,
+        "parts": [
+          [
+            "result",
+            15
+          ]
+        ]
+      },
+      {
+        "label": "Критерии успеха",
+        "max": 15,
+        "parts": [
+          [
+            "success",
+            15
+          ]
+        ]
+      },
+      {
+        "label": "Ограничения",
+        "max": 10,
+        "parts": [
+          [
+            "constraints",
+            10
+          ]
+        ]
+      },
+      {
+        "label": "Пользователи",
+        "max": 10,
+        "parts": [
+          [
+            "users",
+            10
+          ]
+        ]
+      },
+      {
+        "label": "Связь с бизнесом",
+        "max": 10,
+        "parts": [
+          [
+            "contact",
+            3
+          ],
+          [
+            "format",
+            3
+          ],
+          [
+            "feedback",
+            4
+          ]
+        ]
+      }
+    ],
+    "industries": [
+      "Образование",
+      "Ритейл",
+      "Логистика",
+      "Туризм",
+      "Услуги",
+      "Другое"
+    ],
+    "stages": [
+      {
+        "key": "prototype",
+        "title": "Прототип проверен",
+        "points": 50
+      },
+      {
+        "key": "result",
+        "title": "Результат принят",
+        "points": 100
+      }
+    ],
+    "aiMode": "local"
+  }
+}

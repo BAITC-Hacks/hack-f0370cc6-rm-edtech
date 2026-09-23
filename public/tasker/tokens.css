@@ -1,0 +1,54 @@
+@font-face {
+  font-family: Commissioner;
+  src: url('/tasker/fonts/Commissioner-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f6f7fb;
+  --surface: #fff;
+  --text: #242535;
+  --muted: #727686;
+  --subtle: #9295a2;
+  --border: #e8e9f0;
+  --primary: #5045e8;
+  --primary-dark: #4036cf;
+  --primary-light: #eeecff;
+
+  --font-heading: Commissioner, Verdana, sans-serif;
+  --font-ui: Commissioner, Verdana, sans-serif;
+  --font-body: Commissioner, Verdana, sans-serif;
+  --heading-variation: 'FLAR' 22, 'VOLM' 8, 'slnt' 0;
+  --body-variation: 'FLAR' 0, 'VOLM' 0, 'slnt' 0;
+  --text-small: .8125rem;
+  --text-ui: .875rem;
+  --text-body: .9375rem;
+  --text-input: 1rem;
+  --text-task: 1.875rem;
+  --text-section: 1.5rem;
+  --text-display: 3rem;
+  --leading-body: 1.6;
+  --leading-ui: 1.4;
+  --leading-heading: 1.1;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-document: 0;
+  --radius-control: 4px;
+  --radius-dialog: 8px;
+  --shadow: none;
+  --control-height: 44px;
+  --content-width: 1280px;
+}
