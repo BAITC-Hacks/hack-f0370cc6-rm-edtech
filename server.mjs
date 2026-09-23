@@ -11,6 +11,8 @@ import { confirmMilestone, createProposal, decideProposal } from './src/proposal
 import { analyzeTask } from './src/ai/analyze.mjs';
 import { createOpenAIAnalysisOptions } from './src/ai/openai.mjs';
 import { loadAIConfig } from './src/ai/config.mjs';
+import { createPlatformStore } from './src/platform/store.mjs';
+import { createPlatformRouter } from './src/platform/http.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const types = {
@@ -53,13 +55,21 @@ export async function createApplication({
   publicDir = resolve(projectRoot, 'public'),
   onError = error => console.error('Server error:', error.message),
   analysisOptions,
+  assistOptions,
+  platformDataFile = `${dataFile}.platform.json`,
+  origin = 'http://127.0.0.1:3000',
+  googleConfig,
+  allowDemo = false,
 } = {}) {
   const store = await createStore(resolve(dataFile));
+  const platformStore = await createPlatformStore(resolve(platformDataFile));
+  const platformRouter = await createPlatformRouter({store:platformStore, origin, googleConfig, analysisOptions, assistOptions, allowDemo, onError});
   const root = resolve(publicDir);
   const server = createServer(async (req, res) => {
     const head = req.method === 'HEAD';
     try {
       const url = new URL(req.url, 'http://localhost');
+      if (await platformRouter.handle(req, res, url)) return;
       let pathname;
       try { pathname = decodeURIComponent(url.pathname); }
       catch { throw new ValidationError('Некорректный адрес запроса.'); }
@@ -145,7 +155,7 @@ export async function createApplication({
       if (/[\\:\0]/.test(pathname) || pathname.split('/').some(part => part.startsWith('.'))) {
         return fail(res, 403, 'FORBIDDEN', 'Этот файл недоступен.', head);
       }
-      const requested = resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
+      const requested = resolve(root, `.${['/', '/orders', '/profile', '/login'].includes(pathname) ? '/index.html' : pathname}`);
       if (!contained(root, requested)) return fail(res, 403, 'FORBIDDEN', 'Этот файл недоступен.', head);
       let file;
       try {
@@ -171,7 +181,7 @@ export async function createApplication({
   });
   server.requestTimeout = 15000;
   server.headersTimeout = 10000;
-  return { server, store };
+  return { server, store, platformStore };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
@@ -179,7 +189,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const port = Number(process.env.PORT || 3000);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT должен быть целым числом от 1 до 65535.');
     const aiConfig = await loadAIConfig({filePath:resolve(projectRoot,'.env')});
-    const { server } = await createApplication({analysisOptions:createOpenAIAnalysisOptions(aiConfig)});
+    const { server } = await createApplication({
+      analysisOptions:createOpenAIAnalysisOptions(aiConfig), assistOptions:aiConfig,
+      origin:process.env.APP_ORIGIN || `http://127.0.0.1:${port}`,
+      allowDemo:process.env.PLATFORM_DEMO === '1',
+      googleConfig:{clientId:process.env.GOOGLE_CLIENT_ID, clientSecret:process.env.GOOGLE_CLIENT_SECRET, redirectUri:process.env.GOOGLE_REDIRECT_URI},
+    });
     server.on('error', error => { console.error(`Не удалось запустить сервер: ${error.message}`); process.exitCode = 1; });
     server.listen(port, '127.0.0.1', () => console.log(`Alem Tasks: http://127.0.0.1:${port}/ (без ?preview=1)`));
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => server.close());

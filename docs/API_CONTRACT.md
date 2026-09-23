@@ -147,3 +147,40 @@ Query-параметры `industry`, `level`, `query` необязательны
 Рекомендации по навыкам и интересам допустимы после обязательного сценария. Не скрывать общий каталог. Рекомендовать только задачи с рейтингом не ниже 40; использовать заявленные навыки и интересы, не чувствительные характеристики.
 
 Кнопка сброса демонстрации и экспорт данных — отдельные будущие улучшения, не часть обязательного первого этапа.
+
+## HTTP v2: профили, заказы и портфолио (23.09.2026)
+
+V1 сохраняется без изменений. V2 использует отдельную сохраняемую базу `${DATA_FILE}.platform.json`; коллекции v1 и v2 не являются одной базой заказов. Рабочая функциональная оболочка: `/platform.html`.
+
+`GET /api/v2/session` возвращает `{ user, csrfToken, meta }`; meta содержит industries, fields, googleEnabled, demoEnabled и aiMode. Все изменения требуют cookie сессии, заголовка `X-CSRF-Token` из session и совпадающего Origin; перед входом CSRF привязан к гостевой cookie. ID пользователя и роль сервер получает из сессии, не из тела запроса.
+
+| Метод и путь после /api/v2 | Назначение и ответ |
+| --- | --- |
+| POST /auth/demo `{role}` | Только явный локальный demo при PLATFORM_DEMO=1 и loopback; ответ как session. Не Google-регистрация. |
+| POST /auth/logout `{}` | Завершить сессию; `{ok:true}` |
+| GET /auth/google/start | OAuth, только если настроен сервер; Google пока отложен |
+| GET/PATCH /profile | `{user}`; PATCH содержит version и редактируемые данные, activeRole student/business |
+| GET /profiles/:id | Публичный `{profile,reviews,cases,progress}` |
+| GET /orders?category=&query= | Общедоступный `{orders}`, готовность по убыванию, затем дата публикации по возрастанию |
+| GET /orders/mine | Заказы текущего бизнеса |
+| POST /orders | `{title,category,description,fields,confirmed:true}` → `{order}` |
+| GET /orders/:id | `{order,files}`; вложения только пользователям с доступом |
+| PUT /orders/:id | Полный снимок `{version,title,category,description,fields,confirmed:true}` → `{order}`; только владелец открытого заказа |
+| GET/POST /orders/:id/applications | `{applications}` / `{message}` → `{application}` |
+| GET /applications/mine | Отклики студента с краткими данными заказа |
+| PATCH /applications/:id | `{version:order.version,status:accepted/rejected}`; решение владельца |
+| PATCH /orders/:id/status | `{version,status,evidence}`; переходы состояния с проверкой владельца |
+| POST /orders/:id/files | Сырые байты PDF/TXT до 5 МиБ, Content-Type, X-File-Name (encodeURIComponent), X-Order-Version; `{file,orderVersion}` |
+| GET /files/:id | Скачивание по правам доступа |
+| POST /orders/:id/reviews | `{studentId,text}`; после завершения задачи |
+| GET/POST /cases | Собственные кейсы / создание кейса; студенческий режим |
+| PATCH /cases/:id | version и редактируемые поля кейса, published |
+| POST /ai/analyze | raw, industry, fields, answers; ответ соответствует v1 analyze, требует режим бизнеса |
+| POST /ai/fit | applicationId; score, criteria, gaps, questions, warnings, mode |
+| POST /ai/case | caseId, audience education/employment; sections, warnings, mode |
+
+Рейтинг готовности вычисляется только по подтверждённым полям. Нулевой рейтинг не закрывает опубликованный заказ и не запрещает отклик. Конфликт версии возвращает 409: интерфейс сохраняет введённый текст и предлагает перечитать данные.
+
+AI-разбор отклика — соответствие критериям, не вероятность будущего успеха. Результат не принимает отклик и не публикует кейс автоматически. Локальный режим явно подписан. Кейс публикует студент; личный вклад помечен «Со слов участника», подтверждение связанного результата бизнесом показывается отдельно.
+
+Оплата происходит напрямую между участниками. Секреты Google/OpenAI не передаются браузеру. Поля профиля, ограничения вложений и переходы заказов дополнительно описаны в src/platform/README.md.
