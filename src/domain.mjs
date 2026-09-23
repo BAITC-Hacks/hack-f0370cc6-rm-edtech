@@ -37,6 +37,10 @@ export function text(value, label, { required = false, max = 4000 } = {}) {
   return result;
 }
 export function cleanFields(input = {}) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new ValidationError('Поля карточки должны быть объектом.');
+  const allowed = new Set(FIELDS.map(f => f.key));
+  if (Object.keys(input).some(key => !allowed.has(key))) throw new ValidationError('Неизвестное поле карточки.');
+  if (Object.values(input).some(value => typeof value !== 'string')) throw new ValidationError('Значения полей карточки должны быть строками.');
   return Object.fromEntries(FIELDS.map(f => [f.key, text(input[f.key], f.label, { max: f.max })]));
 }
 export function readiness(score) {
@@ -57,10 +61,10 @@ export function rate(task) {
 }
 export const enrich = (task) => ({ ...task, rating: rate(task) });
 export function catalog(tasks, { industry = '', level = '', query = '' } = {}) {
-  const q = query.toLocaleLowerCase('ru');
-  return tasks.filter(t => t.published).map(enrich)
+  const q = query.trim().toLocaleLowerCase('ru');
+  return tasks.filter(t => t.published === true).map(enrich)
     .filter(t => (!industry || t.industry === industry) && (!level || t.rating.level.key === level)
-      && (!q || `${Object.values(t.fields).join(' ')} ${t.company} ${t.industry}`.toLocaleLowerCase('ru').includes(q)))
+      && (!q || `${Object.values(t.fields).join(' ')} ${t.company} ${t.industry} ${(t.tags ?? []).join(' ')}`.toLocaleLowerCase('ru').includes(q)))
     .sort((a, b) => b.rating.score - a.rating.score || a.publishedAt.localeCompare(b.publishedAt));
 }
 export function recommendation(task, team) {
