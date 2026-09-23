@@ -1,5 +1,8 @@
 node_modules/
 data/*.json
 .env
+.env.*
+!.env.example
+data/*.json.tmp
 .DS_Store
 test-results/
