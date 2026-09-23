@@ -1,126 +1,56 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f6f7fb" />
-    <meta name="description" content="TASKER: согласование компонентов интерфейса. Отдельная витрина без записи данных." />
-    <title>TASKER — витрина компонентов</title>
-    <link rel="icon" type="image/svg+xml" href="/tasker/mark.svg" />
-    <link rel="stylesheet" href="/tasker/tokens.css" />
-    <link rel="stylesheet" href="/tasker/system.css" />
-    <script type="module" src="/tasker/system.js"></script>
-  </head>
-  <body>
-    <a class="skip-link" href="#main">Перейти к компонентам</a>
-    <header class="site-header">
-      <div class="header-inner">
-        <a class="brand" href="#main" aria-label="TASKER — витрина компонентов">
-          <img src="/tasker/mark.svg" width="36" height="36" alt="" />
-          <span>TASKER</span>
-        </a>
-        <nav class="main-nav ui-sample" aria-label="Образец основной навигации">
-          <button type="button" data-nav="Задачи" aria-current="page">Задачи</button>
-          <button type="button" data-nav="Команды">Команды</button>
-          <button type="button" data-nav="Избранное">Избранное</button>
-        </nav>
-        <button class="button button-primary ui-sample header-action" type="button" data-open-dialog disabled>Открыть диалог <span aria-hidden="true">↗</span></button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f7fb" />
+  <meta name="description" content="TASKER — витрина интерфейса. Подтверждённые условия задачи отмечены светом. Демонстрационные данные, без записи изменений." />
+  <title>TASKER — условия на виду</title>
+  <link rel="icon" type="image/svg+xml" href="/tasker/mark.svg" />
+  <link rel="preload" href="/tasker/fonts/Commissioner-Variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/tasker/tokens.css" />
+  <link rel="stylesheet" href="/tasker/system.css" />
+  <script type="module" src="/tasker/system.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к компонентам</a>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="#main" aria-label="TASKER — витрина компонентов"><img src="/tasker/mark.svg" width="30" height="30" alt="" /><span>TASKER</span></a>
+    <nav class="main-nav ui-sample" aria-label="Образец основной навигации"><button type="button" data-nav="Задачи" aria-current="page">Задачи</button><button type="button" data-nav="Команды">Команды</button><button type="button" data-nav="Избранное">Избранное</button></nav>
+    <span class="header-edition">ВИТРИНА / 02</span>
+    <button class="button button-primary ui-sample header-action" type="button" data-open-dialog disabled>Открыть диалог <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></button>
+  </div></header>
+  <main id="main" tabindex="-1">
+    <div class="page-heading"><div><p class="eyebrow">ЗАДАЧИ БИЗНЕСА. ПРАКТИКА ДЛЯ КОМАНД.</p><h1>Каталог задач</h1></div><p class="light-caption"><span class="light-sign" aria-hidden="true"></span>Светом отмечены условия,<br>которые подтвердил бизнес.</p></div>
+    <section class="catalog-sample" aria-label="Пример каталога">
+      <div class="catalog-toolbar">
+        <label class="search-control"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><span class="sr-only">Поиск задач</span><input type="search" id="sample-input" placeholder="Задача, навык или компания" autocomplete="off" maxlength="160" /></label>
+        <div class="sample-picker"><label for="sample-task">Демо-пример</label><select id="sample-task" class="ui-sample" disabled><option>Загрузка…</option></select></div>
+        <label class="readiness-filter ui-sample"><span class="sr-only">Готовность задачи</span><select id="sample-level"><option value="">Любая готовность</option><option value="draft">Требует уточнения</option><option value="working">Рабочая</option><option value="ready">Готовая</option><option value="priority">Приоритетная</option></select></label>
       </div>
-    </header>
-    <main id="main" tabindex="-1">
-      <div class="intro">
-        <div>
-          <p class="eyebrow">TASKER / СИСТЕМА ИНТЕРФЕЙСА</p>
-          <h1>Рабочие детали.</h1>
-          <p class="intro-description">Georgia Bold + Verdana. Цвета исходной версии.</p>
-        </div>
-        <fieldset class="size-control">
-          <legend>Размер кнопок и фильтров</legend>
-          <div class="size-options">
-            <label><input type="radio" name="ui-size" value="14" checked /><span>14 px</span></label>
-            <label><input type="radio" name="ui-size" value="15" /><span>15 px</span></label>
-            <label><input type="radio" name="ui-size" value="16" /><span>16 px</span></label>
-          </div>
-        </fieldset>
-      </div>
-
-      <section class="catalog-sample" aria-labelledby="catalog-heading">
-        <div class="section-caption"><h2 id="catalog-heading">Строка задачи</h2><span>Демонстрационные данные проекта</span></div>
-        <div class="filter-row ui-sample" aria-label="Образцы фильтров">
-          <div class="industry-filters" role="group" aria-label="Пример выбора отрасли">
-            <button type="button" class="filter-option" aria-pressed="true" data-industry="">Все отрасли</button>
-            <button type="button" class="filter-option" aria-pressed="false" data-industry="Образование">Образование</button>
-            <button type="button" class="filter-option" aria-pressed="false" data-industry="Ритейл">Ритейл</button>
-            <button type="button" class="filter-option" aria-pressed="false" data-industry="Логистика">Логистика</button>
-            <button type="button" class="filter-option" aria-pressed="false" data-industry="Туризм">Туризм</button>
-            <button type="button" class="filter-option" aria-pressed="false" data-industry="Услуги">Услуги</button>
-          </div>
-          <label class="readiness-filter"><span class="sr-only">Образец выбора готовности</span><select id="sample-level"><option value="">Любая готовность</option><option value="draft">Требует уточнения</option><option value="working">Рабочая</option><option value="ready">Готовая</option><option value="priority">Приоритетная</option></select></label>
-        </div>
-        <div id="task-sample" aria-live="polite" aria-busy="true"><p class="load-message">Загружаем пример задачи…</p></div>
-      </section>
-
-      <div class="specimen-grid">
-        <section class="control-specimen" aria-labelledby="controls-heading">
-          <div class="section-caption"><h2 id="controls-heading">Действия и ввод</h2><span>4 px / без теней</span></div>
-          <div class="button-samples ui-sample">
-            <button class="button button-primary" type="button" data-sample-action="Предложить задачу">Предложить задачу <span aria-hidden="true">↗</span></button>
-            <button class="button button-secondary" type="button" data-sample-action="Сохранить черновик">Сохранить черновик</button>
-          </div>
-          <label class="field-label" for="sample-input">Поиск задач <span>Verdana / 16 px</span></label>
-          <div class="search-control"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><input type="search" id="sample-input" placeholder="Задача, навык или компания" autocomplete="off" maxlength="160" /></div>
-          <p class="component-note">Пример поля. Ввод остаётся только на этой странице.</p>
-        </section>
-        <section class="status-specimen" aria-labelledby="status-heading">
-          <div class="section-caption"><h2 id="status-heading">Статусы</h2><span>Всегда с подписью</span></div>
-          <div class="status-list">
-            <span class="status status-draft">Требует уточнения</span>
-            <span class="status status-working">Рабочая</span>
-            <span class="status status-ready">Готовая</span>
-            <span class="status status-priority">Приоритетная</span>
-          </div>
-          <p class="component-note">Статус описывает полноту условий. Низкий рейтинг не закрывает доступ к задаче.</p>
-        </section>
-        <section class="rating-specimen" aria-labelledby="rating-heading">
-          <div class="section-caption"><h2 id="rating-heading">Шкала рейтинга</h2><span>Семь групп условий</span></div>
-          <div id="rating-sample"><p class="load-message">Загружаем рейтинг…</p></div>
-          <button class="text-button ui-sample" type="button" data-open-dialog disabled>Посмотреть расшифровку <span aria-hidden="true">↗</span></button>
-        </section>
-      </div>
-
-      <footer class="showcase-footer">
-        <p>Витрина компонентов. Действия не записываются в базу.</p>
-        <a href="/">Открыть текущее приложение <span aria-hidden="true">↗</span></a>
-      </footer>
-      <p id="interaction-note" class="interaction-note" role="status" aria-live="polite">Можно менять размер текста, выбирать фильтры и открывать диалог.</p>
-
-      <details class="token-inspector">
-        <summary>Токены и правила системы</summary>
-        <div class="token-grid">
-          <section><h2>Цвета без изменений</h2><dl class="palette-list">
-            <div><dt><i style="background:var(--bg)"></i>--bg</dt><dd>#f6f7fb</dd></div>
-            <div><dt><i style="background:var(--surface)"></i>--surface</dt><dd>#fff</dd></div>
-            <div><dt><i style="background:var(--text)"></i>--text</dt><dd>#242535</dd></div>
-            <div><dt><i style="background:var(--muted)"></i>--muted</dt><dd>#727686</dd></div>
-            <div><dt><i style="background:var(--subtle)"></i>--subtle</dt><dd>#9295a2</dd></div>
-            <div><dt><i style="background:var(--border)"></i>--border</dt><dd>#e8e9f0</dd></div>
-            <div><dt><i style="background:var(--primary)"></i>--primary</dt><dd>#5045e8</dd></div>
-            <div><dt><i style="background:var(--primary-dark)"></i>--primary-dark</dt><dd>#4036cf</dd></div>
-            <div><dt><i style="background:var(--primary-light)"></i>--primary-light</dt><dd>#eeecff</dd></div>
-          </dl></section>
-          <section><h2>Типографика</h2><p class="type-heading">Georgia Bold</p><p>Verdana: основной текст 15 px / 1.6. Поле ввода 16 px. Кнопки и фильтры 14 px / 1.4; переключатель позволяет проверить 15 и 16 px.</p><p>Локальные подстановки: Times New Roman / serif; Geneva / sans-serif. Внешних шрифтов нет.</p></section>
-          <section><h2>Геометрия</h2><p>Отступы: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px.</p><p>Документы: 0 px. Элементы управления: 4 px. Диалог: 8 px. Минимальная высота управления: 44 px. Теней нет.</p><p>Обычный текст — --text. --subtle используется только как декоративный цвет. Фокус выделяется отдельным контуром.</p></section>
-        </div>
-      </details>
-    </main>
-
-    <dialog id="sample-dialog" class="sample-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
-      <div class="dialog-heading"><span class="eyebrow">TASKER / ПОЛНОТА УСЛОВИЙ</span><form method="dialog"><button class="icon-button" aria-label="Закрыть диалог" autofocus><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></form></div>
-      <h2 id="dialog-title">Из чего состоит рейтинг</h2>
-      <p id="dialog-description">Баллы начисляются за заполненные и подтверждённые условия. Это оценка полноты, а не проверка истинности сведений.</p>
-      <div id="dialog-rating"></div>
-      <form method="dialog" class="dialog-actions"><span>Демонстрационный пример</span><button class="button button-primary ui-sample">Понятно</button></form>
-    </dialog>
-    <noscript><p class="noscript">Для загрузки примера и проверки диалога включите JavaScript. Цвета, шрифты и элементы доступны без него.</p></noscript>
-  </body>
+      <div class="filter-row ui-sample"><div class="industry-filters" role="group" aria-label="Отрасль"><button type="button" class="filter-option" aria-pressed="true" data-industry="">Все отрасли</button><button type="button" class="filter-option" aria-pressed="false" data-industry="Образование">Образование</button><button type="button" class="filter-option" aria-pressed="false" data-industry="Ритейл">Ритейл</button><button type="button" class="filter-option" aria-pressed="false" data-industry="Логистика">Логистика</button><button type="button" class="filter-option" aria-pressed="false" data-industry="Туризм">Туризм</button><button type="button" class="filter-option" aria-pressed="false" data-industry="Услуги">Услуги</button></div><span class="filter-note">Одна задача для проверки оформления</span></div>
+      <div id="task-sample" aria-busy="true"><p class="load-message" role="status">Загружаем пример задачи…</p></div>
+    </section>
+    <div class="specimen-grid">
+      <section class="control-specimen" aria-labelledby="controls-heading"><div class="section-caption"><span>01</span><h2 id="controls-heading">Действия</h2></div><div class="button-samples ui-sample"><button class="button button-primary" type="button" data-sample-action="Предложить задачу">Предложить задачу <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg></button><button class="button button-secondary" type="button" data-sample-action="Сохранить черновик">Сохранить черновик</button></div><p class="component-note">Образцы кнопок. Данные не отправляются.</p></section>
+      <section aria-labelledby="status-heading"><div class="section-caption"><span>02</span><h2 id="status-heading">Статусы готовности</h2></div><div class="status-list"><span class="status status-draft">Требует уточнения</span><span class="status status-working">Рабочая</span><span class="status status-ready">Готовая</span><span class="status status-priority">Приоритетная</span></div><p class="component-note">Подпись и форма отметки дополняют цвет.</p></section>
+      <section class="type-specimen" aria-labelledby="type-heading"><div class="section-caption"><span>03</span><h2 id="type-heading">Commissioner</h2></div><fieldset class="size-control"><legend>Размер кнопок и фильтров</legend><div class="size-options"><label><input type="radio" name="ui-size" value="14" checked /><span>14 px</span></label><label><input type="radio" name="ui-size" value="15" /><span>15 px</span></label><label><input type="radio" name="ui-size" value="16" /><span>16 px</span></label></div></fieldset><p class="component-note">Шрифт хранится в проекте. Работает без сети.</p></section>
+    </div>
+    <div class="showcase-footer"><p>Демонстрационные задачи. Витрина не сохраняет изменения.</p><a href="/">Текущее приложение <span aria-hidden="true">↗</span></a></div>
+    <p id="interaction-note" class="interaction-note" role="status" aria-live="polite">Загружаем данные…</p>
+    <details class="token-inspector"><summary>Токены, типографика и состояния полей</summary><div class="token-grid">
+      <section><h2>Девять цветов</h2><dl class="palette-list">
+        <div><dt><i style="background:var(--bg)"></i>--bg</dt><dd>#f6f7fb</dd></div><div><dt><i style="background:var(--surface)"></i>--surface</dt><dd>#fff</dd></div><div><dt><i style="background:var(--text)"></i>--text</dt><dd>#242535</dd></div><div><dt><i style="background:var(--muted)"></i>--muted</dt><dd>#727686</dd></div><div><dt><i style="background:var(--subtle)"></i>--subtle</dt><dd>#9295a2</dd></div><div><dt><i style="background:var(--border)"></i>--border</dt><dd>#e8e9f0</dd></div><div><dt><i style="background:var(--primary)"></i>--primary</dt><dd>#5045e8</dd></div><div><dt><i style="background:var(--primary-dark)"></i>--primary-dark</dt><dd>#4036cf</dd></div><div><dt><i style="background:var(--primary-light)"></i>--primary-light</dt><dd>#eeecff</dd></div>
+      </dl></section>
+      <section><h2>Живой рисунок. Строгий набор.</h2><p class="type-display">Ә Ғ Қ Ң Ө Ұ Ү Һ І<br>Задача, условия, результат.</p><p>Commissioner: заголовки 600–650, интерфейс 400–500. В заголовках умеренно расширены окончания штрихов; в основном тексте используется спокойное начертание.</p><p>Документы: 0 px. Управление: 4 px. Диалог: 8 px. Шаг отступов: 4 px. Минимальная высота управления: 44 px. Без теней и градиентов.</p><a href="/tasker/fonts/OFL.txt">Лицензия шрифта</a></section>
+      <section><h2>Три состояния поля</h2><div class="state-samples"><div class="state-example is-lit"><strong>Подтверждено бизнесом</strong><p>Светлая полоса на всю строку, индиговый источник у края.</p></div><div class="state-example is-pending"><strong>Ожидает подтверждения</strong><p>Текст есть. Пунктирная кромка, подсветка ещё не включена.</p></div><div class="state-example is-missing"><strong>Не указано</strong><p>Нейтральный фон, контур и читаемая подпись.</p></div></div></section>
+    </div></details>
+  </main>
+  <dialog id="sample-dialog" class="sample-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <div class="dialog-heading"><span class="eyebrow">TASKER / УСЛОВИЯ НА ВИДУ</span><form method="dialog"><button class="icon-button" aria-label="Закрыть диалог" autofocus><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></form></div>
+    <h2 id="dialog-title">Что подтверждено</h2><p id="dialog-description">Рейтинг оценивает полноту подтверждённых условий, а не истинность сведений. Откликнуться можно на любую опубликованную задачу.</p>
+    <div id="dialog-rating"></div><form method="dialog" class="dialog-actions"><span>Демо-пример · без записи данных</span><button class="button button-primary ui-sample">Понятно</button></form>
+  </dialog>
+  <noscript><p class="noscript">Включите JavaScript, чтобы загрузить пример задачи и проверить диалог.</p></noscript>
+</body>
 </html>
