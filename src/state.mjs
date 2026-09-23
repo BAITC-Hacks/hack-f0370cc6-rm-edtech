@@ -1,7 +1,7 @@
 import { FIELDS, RUBRIC, INDUSTRIES, STAGES, enrich } from './domain.mjs';
 
 // Scores are projections of confirmed milestones, never the persisted team.points value.
-export function stateResponse(state) {
+export function stateResponse(state, {aiMode = 'local'} = {}) {
   const points = new Map(state.teams.map(team => [team.id, 0]));
   for (const proposal of state.proposals) {
     if (proposal.status !== 'accepted' || !points.has(proposal.teamId)) continue;
@@ -20,6 +20,6 @@ export function stateResponse(state) {
     teams: state.teams.map(team => ({ ...team, points: points.get(team.id) })),
     proposals: state.proposals,
     drafts: state.drafts,
-    meta: { fields: FIELDS, rubric: RUBRIC, industries: INDUSTRIES, stages: STAGES, aiMode: 'local' },
+    meta: { fields: FIELDS, rubric: RUBRIC, industries: INDUSTRIES, stages: STAGES, aiMode: aiMode === 'remote' ? 'remote' : 'local' },
   };
 }

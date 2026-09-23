@@ -5,6 +5,8 @@ import { assembleFields, buildLocalResult, generateLocal, LOCAL_WARNING } from '
 const fieldKeys = FIELDS.map(field => field.key);
 const MAX_OUTPUT_BYTES = 64 * 1024;
 export const FALLBACK_WARNING = 'Анализатор не вернул корректный результат вовремя. Показаны локальные вопросы; введённые сведения сохранены в ответе.';
+export const REMOTE_WARNING = 'Вопросы предложены AI. Проверьте их уместность; сведения карточки остаются введёнными вами и требуют ручного подтверждения.';
+export const REMOTE_FALLBACK_WARNING = 'Использован локальный резервный режим после неуспешной попытки внешнего AI-анализа.';
 
 function object(value, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new ValidationError(`${label}: ожидается объект.`);
@@ -38,9 +40,8 @@ function sameKeys(value, keys) {
     Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value,key));
 }
 
-// This boundary intentionally accepts only the facts supported by our conservative local mode.
-// It is not a semantic hallucination detector or a ready-to-use remote-model adapter.
-export function validateAnalysisResult(output, input) {
+// Both modes retain human facts verbatim. Remote generation can customize questions only.
+export function validateAnalysisResult(output, input, {mode = 'local'} = {}) {
   if (typeof output !== 'string' || Buffer.byteLength(output,'utf8') > MAX_OUTPUT_BYTES) throw new Error('Invalid result size/type');
   const result = JSON.parse(output);
   if (!sameKeys(result,['fields','questions','missingFields','warnings'])) throw new Error('Invalid result schema');
@@ -61,22 +62,27 @@ export function validateAnalysisResult(output, input) {
     new Set(result.missingFields).size !== missing.length || missing.some(key => !result.missingFields.includes(key))) throw new Error('Invalid missing fields');
   if (!Array.isArray(result.warnings) || result.warnings.length > 5) throw new Error('Invalid warnings');
   for (const warning of result.warnings) text(warning, 'Предупреждение', {required:true,max:500});
-  // Local marking is server-owned, not dependent on generator-provided metadata.
-  return {mode:'local', fields, questions:result.questions, missingFields:missing, warnings:[LOCAL_WARNING]};
+  // Mode/warnings are server-owned, never provider-controlled metadata.
+  return {mode:mode === 'remote' ? 'remote' : 'local', fields, questions:result.questions,
+    missingFields:missing, warnings:[mode === 'remote' ? REMOTE_WARNING : LOCAL_WARNING]};
 }
 
 // generate/timeout are constructor-only test seams. No HTTP field selects a provider or URL.
-export async function analyzeTask(value, {generate = generateLocal, timeoutMs = 2000} = {}) {
+export async function analyzeTask(value, {generate = generateLocal, timeoutMs = 2000, mode = 'local'} = {}) {
   const input = validateAnalysisInput(value); // Invalid requests are 400, not a success fallback.
   const fallback = {mode:'local', ...buildLocalResult(input)};
   let timeout;
+  const controller = new AbortController();
   try {
     const output = await Promise.race([
-      Promise.resolve().then(() => generate({prompt:ANALYSIS_PROMPT, input:structuredClone(input)})),
-      new Promise((_,reject) => {timeout=setTimeout(() => reject(new Error('Analysis timeout')),timeoutMs);}),
+      Promise.resolve().then(() => generate({prompt:ANALYSIS_PROMPT, input:structuredClone(input), signal:controller.signal})),
+      new Promise((_,reject) => {timeout=setTimeout(() => {
+        controller.abort();
+        reject(new Error('Analysis timeout'));
+      },timeoutMs);}),
     ]);
-    return validateAnalysisResult(output,input);
+    return validateAnalysisResult(output,input,{mode});
   } catch {
-    return {...fallback, warnings:[...fallback.warnings,FALLBACK_WARNING]};
-  } finally { clearTimeout(timeout); }
+    return {...fallback, warnings:[mode === 'remote' ? REMOTE_FALLBACK_WARNING : LOCAL_WARNING, FALLBACK_WARNING]};
+  } finally { clearTimeout(timeout); controller.abort(); }
 }

@@ -7,7 +7,10 @@ import { catalog, INDUSTRIES, ValidationError, text } from './src/domain.mjs';
 import { stateResponse } from './src/state.mjs';
 import { readJSON } from './src/http-json.mjs';
 import { confirmTask, createDraft, publishTask } from './src/tasks.mjs';
+import { confirmMilestone, createProposal, decideProposal } from './src/proposals.mjs';
 import { analyzeTask } from './src/ai/analyze.mjs';
+import { createOpenAIAnalysisOptions } from './src/ai/openai.mjs';
+import { loadAIConfig } from './src/ai/config.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const types = {
@@ -85,6 +88,32 @@ export async function createApplication({
           const task = await publishTask(store, publishMatch[1], await readJSON(req));
           return send(res, 200, {task});
         }
+        const taskProposalsMatch = /^\/api\/tasks\/([^/]+)\/proposals$/.exec(pathname);
+        if (taskProposalsMatch) {
+          if (req.method !== 'POST') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён POST.', head, {Allow:'POST'});
+          }
+          const proposal = await createProposal(store, taskProposalsMatch[1], await readJSON(req));
+          return send(res, 201, {proposal});
+        }
+        const milestoneMatch = /^\/api\/proposals\/([^/]+)\/milestones$/.exec(pathname);
+        if (milestoneMatch) {
+          if (req.method !== 'POST') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён POST.', head, {Allow:'POST'});
+          }
+          return send(res, 200, await confirmMilestone(store, milestoneMatch[1], await readJSON(req)));
+        }
+        const proposalMatch = /^\/api\/proposals\/([^/]+)$/.exec(pathname);
+        if (proposalMatch) {
+          if (req.method !== 'PATCH') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён PATCH.', head, {Allow:'PATCH'});
+          }
+          const proposal = await decideProposal(store, proposalMatch[1], await readJSON(req));
+          return send(res, 200, {proposal});
+        }
         const taskMatch = /^\/api\/tasks\/([^/]+)$/.exec(pathname);
         if (taskMatch) {
           if (req.method !== 'PUT') {
@@ -106,7 +135,7 @@ export async function createApplication({
           const filters = filtersFrom(url.searchParams);
           return send(res, 200, { tasks: catalog(store.read().tasks, filters) });
         }
-        return send(res, 200, stateResponse(store.read()));
+        return send(res, 200, stateResponse(store.read(), {aiMode:analysisOptions?.mode}));
       }
       if (!['GET', 'HEAD'].includes(req.method)) {
         req.resume();
@@ -149,7 +178,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const port = Number(process.env.PORT || 3000);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT должен быть целым числом от 1 до 65535.');
-    const { server } = await createApplication();
+    const aiConfig = await loadAIConfig({filePath:resolve(projectRoot,'.env')});
+    const { server } = await createApplication({analysisOptions:createOpenAIAnalysisOptions(aiConfig)});
     server.on('error', error => { console.error(`Не удалось запустить сервер: ${error.message}`); process.exitCode = 1; });
     server.listen(port, '127.0.0.1', () => console.log(`Alem Tasks: http://127.0.0.1:${port}/ (без ?preview=1)`));
     for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => server.close());

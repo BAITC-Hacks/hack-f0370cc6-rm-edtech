@@ -63,7 +63,7 @@ test('invalid filters return contract errors, and future endpoints are not fake 
   const method = await fetch(`${url}/api/state`,{method:'POST'});
   assert.equal(method.status,405);
   assert.equal(method.headers.get('allow'),'GET');
-  const future = await fetch(`${url}/api/tasks/future/proposals`,{method:'POST'});
+  const future = await fetch(`${url}/api/future`,{method:'POST'});
   assert.equal(future.status,404);
   assert.equal((await future.json()).error.code,'NOT_FOUND');
 });
