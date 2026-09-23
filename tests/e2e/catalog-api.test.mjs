@@ -67,3 +67,36 @@ test('catalog requests forward AbortSignal so obsolete searches can be cancelled
   await client.loadCatalog({},controller.signal);
   assert.equal(received,controller.signal);
 });
+
+test('creation sends only the business draft contract and preserves the server response', async () => {
+  const client = await api();
+  const draft = {...structuredClone(fixture.tasks[0]), id:'task_new', businessId:'business_demo', published:false, rating:{...fixture.tasks[0].rating,score:0}};
+  const calls = [];
+  globalThis.fetch = async (url,options) => { calls.push({url,options}); return response({task:draft},201); };
+  assert.deepEqual(await client.createTask({raw:'Заявки теряются в чатах',industry:'Услуги',score:100}),draft);
+  assert.equal(calls.length,1);
+  assert.equal(calls[0].url,'/api/tasks');
+  assert.equal(calls[0].options.method,'POST');
+  assert.equal(calls[0].options.headers['Content-Type'],'application/json');
+  assert.deepEqual(JSON.parse(calls[0].options.body),{role:'business',businessId:'business_demo',raw:'Заявки теряются в чатах',industry:'Услуги'});
+});
+
+test('a failed create is never retried and uncertain responses are distinguished from validation', async () => {
+  const client = await api();
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new TypeError('Connection lost'); };
+  await assert.rejects(client.createTask({raw:'Потребность',industry:'Услуги'}),error => error.uncertain === true);
+  assert.equal(calls,1);
+  globalThis.fetch = async () => response({error:{message:'Неизвестная отрасль.'}},400);
+  await assert.rejects(client.createTask({raw:'Потребность',industry:'Ошибка'}),error => !error.uncertain && /отрасль/.test(error.message));
+  globalThis.fetch = async () => response({task:fixture.tasks[0]},201);
+  await assert.rejects(client.createTask({raw:'Потребность',industry:'Услуги'}),error => error.uncertain === true);
+});
+
+test('preview never sends a write or reports a fake saved draft', async () => {
+  const client = await api('?preview=1');
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; return response({}); };
+  await assert.rejects(client.createTask({raw:'Потребность',industry:'Услуги'}),/не сохраняются/);
+  assert.equal(calls,0);
+});
