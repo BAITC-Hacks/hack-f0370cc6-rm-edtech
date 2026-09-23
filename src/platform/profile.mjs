@@ -35,6 +35,7 @@ export function ownProfile(user) {
     name:user.name, contacts:user.contacts, photoUrl:user.photoUrl, activeRole:user.activeRole,
     student:user.student, business:user.business, version:user.version,
     createdAt:user.createdAt, updatedAt:user.updatedAt,
+    isDemo:Boolean(user.isDemo),
   });
 }
 

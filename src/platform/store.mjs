@@ -1,7 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
-const collections = ['users', 'sessions', 'orders', 'applications', 'files', 'reviews'];
+const collections = ['users', 'sessions', 'orders', 'applications', 'files', 'reviews', 'cases'];
 
 function validate(state) {
   if (!state || state.schemaVersion !== 2 || !collections.every(key => Array.isArray(state[key]))) {
@@ -24,6 +24,8 @@ export async function createPlatformStore(file) {
     if (error.code !== 'ENOENT') throw new Error('Не удалось прочитать базу личных аккаунтов.');
     state = {schemaVersion:2, ...Object.fromEntries(collections.map(key => [key, []]))};
   }
+  // Backward-compatible addition: existing v2 databases retain every record.
+  if (state?.schemaVersion === 2 && state.cases === undefined) state.cases = [];
   validate(state);
   const persist = async next => {
     validate(next);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createPlatformStore } from '../../src/platform/store.mjs';
-import { applyToOrder, createOrder, decideApplication, getOrder, listApplications, listOrders, listOwnOrders, transitionOrder } from '../../src/platform/orders.mjs';
+import { applyToOrder, createOrder, decideApplication, getOrder, listApplications, listOrders, listOwnOrders, transitionOrder, updateOrder } from '../../src/platform/orders.mjs';
 import { temporaryDirectory } from './helpers.mjs';
 
 const input = { title: 'Учёт заявок', category: 'Услуги', description: 'Нужен понятный учёт входящих обращений.' };
@@ -52,7 +52,9 @@ test('business creates a separate open order with server fields and a public pro
   assert.deepEqual(order.history, [{ from: null, to: 'open', actorId: 'owner', at: order.createdAt, evidence: '' }]);
   const publicResult = getOrder(store, order.id);
   assert.equal(publicResult.owner.companyName, 'Компания owner');
-  for (const key of ['email', 'contacts', 'passwordHash', 'sessions', 'history', 'rating', 'published', 'confirmedFields']) {
+  assert.equal(publicResult.rating.score,0);
+  assert.deepEqual(publicResult.confirmedFields,[]);
+  for (const key of ['email', 'contacts', 'passwordHash', 'sessions', 'history', 'published']) {
     assert.ok(!Object.hasOwn(publicResult, key));
     assert.ok(!Object.hasOwn(publicResult.owner, key));
   }
@@ -81,7 +83,31 @@ test('order inputs reject forged fields and invalid lengths while accepting thei
   }
 });
 
-test('open catalog filters category and case-insensitive text and sorts publication dates with a deterministic tie', async t => {
+test('confirmed order conditions drive server readiness, preserve publication and allow a zero-score response',async t=>{
+  const {store,file} = await setup(t);
+  await rejected(createOrder(store,'owner',{...input,fields:{data:'Материалы'}}),400);
+  const order = await createOrder(store,'owner',{...input,fields:{title:input.title},confirmed:true});
+  assert.equal(order.rating.score,0);
+  assert.equal(listOrders(store).find(item=>item.id===order.id).rating.score,0);
+  await apply(store,order.id);
+  const updated = await updateOrder(store,'owner',order.id,{...input,version:order.version,
+    fields:{title:input.title,context:'Заявки в чатах',need:'Собрать обращения',data:'Обезличенные примеры',
+      users:'Администратор',constraints:'Без личных данных',result:'Список обращений',success:'Каждое тестовое обращение найдено',
+      contact:'В чате проекта',format:'Обсуждение раз в неделю',feedback:'Проверяет владелец'},confirmed:true});
+  assert.equal(updated.rating.score,100);
+  assert.equal(updated.publishedAt,order.publishedAt);
+  assert.equal(getOrder(store,order.id).rating.score,100);
+  const before = await snapshot(store,file);
+  await rejected(updateOrder(store,'owner',order.id,{...input,version:1,fields:{title:input.title},confirmed:true}),409);
+  await rejected(updateOrder(store,'other',order.id,{...input,version:2,fields:{title:input.title},confirmed:true}),403);
+  await unchanged(store,file,before);
+  const cleared = await updateOrder(store,'owner',order.id,{...input,version:2,fields:{title:input.title},confirmed:true});
+  assert.equal(cleared.rating.score,0);
+  assert.equal(cleared.fields.data,'');
+  assert.equal(getOrder(await createPlatformStore(file),order.id).rating.score,0);
+});
+
+test('open catalog filters category and text, retains low readiness and resolves equal scores by publication date', async t => {
   const { store } = await setup(t);
   const orders = [];
   for (let index = 0; index < 4; index++) orders.push(await createOrder(store, 'owner', { ...input, title: `Учёт ${index}`, category: index === 3 ? 'Ритейл' : 'Услуги' }));
@@ -90,7 +116,7 @@ test('open catalog filters category and case-insensitive text and sorts publicat
     for (const order of state.orders.slice(1)) order.publishedAt = '2026-02-01T00:00:00.000Z';
   });
   const tied = orders.slice(1).map(order => order.id).sort();
-  assert.deepEqual(listOrders(store).map(order => order.id), [...tied, orders[0].id]);
+  assert.deepEqual(listOrders(store).map(order => order.id), [orders[0].id, ...tied]);
   assert.deepEqual(listOrders(store, { category: 'Ритейл', query: '  УЧЁТ  ' }).map(order => order.id), [orders[3].id]);
   assert.equal(listOrders(store, { query: 'компания OWNER' }).length, 4);
   assert.equal(listOrders(store, { query: 'не существующая фраза' }).length, 0);

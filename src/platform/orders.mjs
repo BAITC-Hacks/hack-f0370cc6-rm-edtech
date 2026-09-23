@@ -1,4 +1,4 @@
-import { id, INDUSTRIES, now, requireFound, text, ValidationError } from '../domain.mjs';
+import { cleanFields, id, INDUSTRIES, now, rate, requireFound, text, ValidationError } from '../domain.mjs';
 
 const statuses = ['open', 'in_progress', 'completed', 'closed'];
 
@@ -36,6 +36,9 @@ function publicOrder(state, order) {
     description: order.description, status: order.status, version: order.version,
     attachments: [...order.attachments], createdAt: order.createdAt,
     publishedAt: order.publishedAt, updatedAt: order.updatedAt,
+    fields: order.fields ?? cleanFields({title:order.title,context:order.description}),
+    confirmedFields: order.confirmedFields ?? [], confirmedAt: order.confirmedAt ?? null,
+    rating: rate(order), isDemo: Boolean(order.isDemo),
     owner: { id: order.ownerId, name: owner?.name ?? '', companyName: owner?.business?.companyName ?? '', industry: owner?.business?.industry ?? '' },
   };
 }
@@ -47,11 +50,16 @@ function changeStatus(order, status, userId, at, evidence = '') {
 }
 
 export async function createOrder(store, userId, body) {
-  knownKeys(body, ['title', 'category', 'description']);
+  knownKeys(body, ['title', 'category', 'description', 'fields', 'confirmed']);
   const title = text(body.title, 'Название задачи', { required: true, max: 160 });
   const category = text(body.category, 'Категория', { required: true, max: 100 });
   if (!INDUSTRIES.includes(category)) throw new ValidationError('Неизвестная категория.');
   const description = text(body.description, 'Описание задачи', { required: true, max: 4000 });
+  const fields = cleanFields(body.fields ?? {title,context:description});
+  if (body.fields !== undefined && body.confirmed !== true) throw new ValidationError('Подтвердите введённые условия перед публикацией.');
+  if (body.confirmed !== undefined && body.confirmed !== true) throw new ValidationError('Подтверждение должно быть явным.');
+  if (fields.title && fields.title !== title) throw new ValidationError('Название в условиях должно совпадать с названием заказа.');
+  fields.title = title;
   return store.mutate(state => {
     actor(state, userId, 'business');
     const createdAt = now();
@@ -59,9 +67,11 @@ export async function createOrder(store, userId, body) {
       id: id('order'), ownerId: userId, title, category, description, status: 'open',
       version: 1, attachments: [], createdAt, publishedAt: createdAt, updatedAt: createdAt,
       history: [{ from: null, to: 'open', actorId: userId, at: createdAt, evidence: '' }],
+      fields, confirmedFields:body.confirmed === true ? Object.keys(fields).filter(key=>fields[key]) : [],
+      confirmedAt:body.confirmed === true ? createdAt : null,
     };
     state.orders.push(order);
-    return order;
+    return {...order,rating:rate(order)};
   });
 }
 
@@ -75,7 +85,7 @@ export function listOrders(store, filters = {}) {
     .map(order => publicOrder(state, order))
     .filter(order => (!category || order.category === category) && (!query ||
       `${order.title} ${order.description} ${order.category} ${order.owner.companyName}`.toLocaleLowerCase('ru').includes(query)))
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.id.localeCompare(b.id));
+    .sort((a, b) => b.rating.score-a.rating.score || a.publishedAt.localeCompare(b.publishedAt) || a.id.localeCompare(b.id));
 }
 
 export function getOrder(store, orderId) {
@@ -87,7 +97,30 @@ export function listOwnOrders(store, userId) {
   const state = store.read();
   actor(state, userId, 'business');
   return state.orders.filter(order => order.ownerId === userId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
+    .map(order=>({...order,rating:rate(order)}));
+}
+
+export async function updateOrder(store, userId, orderId, body) {
+  knownKeys(body,['version','title','category','description','fields','confirmed']);
+  validVersion(body.version);
+  if (body.confirmed !== true || !Object.hasOwn(body,'fields')) throw new ValidationError('Проверьте и подтвердите полный снимок условий.');
+  const title = text(body.title,'Название задачи',{required:true,max:160});
+  const description = text(body.description,'Описание задачи',{required:true,max:4000});
+  const category = text(body.category,'Категория',{required:true,max:100});
+  if (!INDUSTRIES.includes(category)) throw new ValidationError('Неизвестная категория.');
+  const fields = cleanFields(body.fields);
+  if (fields.title && fields.title !== title) throw new ValidationError('Название в условиях должно совпадать с названием заказа.');
+  fields.title = title;
+  const version = body.version;
+  return store.mutate(state=>{
+    const order = ownedOrder(state,userId,orderId);
+    currentVersion(order,version);
+    if (order.status !== 'open') throw new ValidationError('Условия можно редактировать до начала работы.',409);
+    Object.assign(order,{title,category,description,fields,
+      confirmedFields:Object.keys(fields).filter(key=>fields[key]),confirmedAt:now(),updatedAt:now(),version:order.version+1});
+    return {...order,rating:rate(order)};
+  });
 }
 
 export async function applyToOrder(store, userId, orderId, body) {
