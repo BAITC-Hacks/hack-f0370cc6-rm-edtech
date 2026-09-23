@@ -7,6 +7,7 @@ import { catalog, INDUSTRIES, ValidationError, text } from './src/domain.mjs';
 import { stateResponse } from './src/state.mjs';
 import { readJSON } from './src/http-json.mjs';
 import { createDraft } from './src/tasks.mjs';
+import { analyzeTask } from './src/ai/analyze.mjs';
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const types = {
@@ -48,6 +49,7 @@ export async function createApplication({
   dataFile = process.env.DATA_FILE || resolve(projectRoot, 'data/state.json'),
   publicDir = resolve(projectRoot, 'public'),
   onError = error => console.error('Server error:', error.message),
+  analysisOptions,
 } = {}) {
   const store = await createStore(resolve(dataFile));
   const root = resolve(publicDir);
@@ -59,6 +61,13 @@ export async function createApplication({
       try { pathname = decodeURIComponent(url.pathname); }
       catch { throw new ValidationError('Некорректный адрес запроса.'); }
       if (pathname === '/api' || pathname.startsWith('/api/')) {
+        if (pathname === '/api/ai/analyze') {
+          if (req.method !== 'POST') {
+            req.resume();
+            return fail(res, 405, 'METHOD_NOT_ALLOWED', 'Для этого маршрута разрешён POST.', head, {Allow:'POST'});
+          }
+          return send(res, 200, await analyzeTask(await readJSON(req), analysisOptions));
+        }
         if (pathname === '/api/tasks') {
           if (req.method !== 'POST') {
             req.resume();

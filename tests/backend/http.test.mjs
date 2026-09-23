@@ -6,6 +6,8 @@ import { createApplication } from '../../server.mjs';
 import { temporaryDirectory } from './helpers.mjs';
 import { request } from 'node:http';
 import { MAX_JSON_BYTES } from '../../src/http-json.mjs';
+import { readFile } from 'node:fs/promises';
+import { FALLBACK_WARNING } from '../../src/ai/analyze.mjs';
 
 async function listen(app) {
   app.server.listen(0, '127.0.0.1');
@@ -61,7 +63,7 @@ test('invalid filters return contract errors, and future endpoints are not fake 
   const method = await fetch(`${url}/api/state`,{method:'POST'});
   assert.equal(method.status,405);
   assert.equal(method.headers.get('allow'),'GET');
-  const future = await fetch(`${url}/api/ai/analyze`,{method:'POST'});
+  const future = await fetch(`${url}/api/tasks/future/publish`,{method:'POST'});
   assert.equal(future.status,404);
   assert.equal((await future.json()).error.code,'NOT_FOUND');
 });
@@ -215,4 +217,56 @@ test('chunked JSON enforces size bound even without Content-Length', async t => 
   assert.equal(result.status,413);
   assert.equal(result.body.error.code,'PAYLOAD_TOO_LARGE');
   assert.equal(app.store.read().tasks.length,5);
+});
+
+const postAnalysis = (url,body={raw:draftInput.raw,industry:draftInput.industry}) => fetch(`${url}/api/ai/analyze`,{
+  method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),
+});
+
+test('AI HTTP endpoint analyzes without writing, confirming or scoring saved tasks', async t => {
+  const {app,url,file}=await setup(t);
+  const before=app.store.read();
+  const diskBefore=await readFile(file,'utf8');
+  const response=await postAnalysis(url);
+  assert.equal(response.status,200);
+  const body=await response.json();
+  assert.equal(body.mode,'local');
+  assert.equal(body.fields.context,draftInput.raw);
+  assert.ok(body.questions.length>=3);
+  assert.ok(body.warnings.some(message=>message.includes('заглушка')));
+  assert.deepEqual(app.store.read(),before);
+  assert.equal(await readFile(file,'utf8'),diskBefore);
+});
+
+test('invalid analysis requests and methods use existing JSON error contract without writes', async t => {
+  const {app,url,file}=await setup(t);
+  const diskBefore=await readFile(file,'utf8');
+  for (const body of [{}, {raw:draftInput.raw,industry:'bad'}, {raw:draftInput.raw,industry:'Услуги',answers:[]}]) {
+    const response=await postAnalysis(url,body);
+    assert.equal(response.status,400);
+    const result=await response.json();
+    assert.equal(result.error.code,'VALIDATION_ERROR');
+    assert.deepEqual(result.error.fields,{});
+  }
+  const get=await fetch(`${url}/api/ai/analyze`);
+  assert.equal(get.status,405);
+  assert.equal(get.headers.get('allow'),'POST');
+  const large=await postAnalysis(url,{raw:'x'.repeat(MAX_JSON_BYTES),industry:'Услуги'});
+  assert.equal(large.status,413);
+  assert.equal(app.store.read().tasks.length,5);
+  assert.equal(await readFile(file,'utf8'),diskBefore);
+});
+
+test('invalid generated result falls back through HTTP without persisting or exposing diagnostics', async t => {
+  const {app,url,file}=await setup(t,{analysisOptions:{generate:()=>'{invalid secret diagnostic'}});
+  const before=app.store.read();
+  const diskBefore=await readFile(file,'utf8');
+  const response=await postAnalysis(url,{raw:draftInput.raw,industry:'Услуги',fields:{data:'Сведения человека'}});
+  assert.equal(response.status,200);
+  const result=await response.json();
+  assert.equal(result.fields.data,'Сведения человека');
+  assert.ok(result.warnings.includes(FALLBACK_WARNING));
+  assert.equal(JSON.stringify(result).includes('secret diagnostic'),false);
+  assert.deepEqual(app.store.read(),before);
+  assert.equal(await readFile(file,'utf8'),diskBefore);
 });
